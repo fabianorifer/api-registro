@@ -1,0 +1,26 @@
+org: edsonguardamino
+service: api-registro
+
+provider:
+  name: aws
+  runtime: python3.12
+  iam:
+    role: arn:aws:iam::051476014162:role/LabRole
+
+functions:
+  crear:
+    handler: CrearEstudiante.lambda_handler
+    events:
+      - http:
+          path: /registro/crear
+          method: post
+          cors: true
+          integration: lambda
+  login:
+    handler: LoginEstudiante.lambda_handler
+    events:
+      - http:
+          path: /registro/login
+          method: post
+          cors: true
+          integration: lambda
