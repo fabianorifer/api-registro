@@ -21,6 +21,7 @@ def lambda_handler(event,context):
                 Item={
                     'tenant_id':tenant_id,
                     'c_estudiante':c_estudiante,
+                    'email':email,
                     'datos_estudiante':datos_estudiante
                 }
             )
@@ -50,5 +51,3 @@ def lambda_handler(event,context):
             'body': mensaje
 
         }
-
-
