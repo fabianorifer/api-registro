@@ -1,8 +1,8 @@
 import boto3
 import hashlib
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+#def hash_password(password):
+#    return hashlib.sha256(password.encode()).hexdigest()
 
 def lambda_handler(event,context):
     try:
@@ -13,8 +13,8 @@ def lambda_handler(event,context):
         password=datos_estudiante['password']
 
         if(email and password):
-            hashed_password=hash_password(password)
-            datos_estudiante['password']=hashed_password
+            #hashed_password=hash_password(password)
+            datos_estudiante['password']=password
             dynamodb=boto3.resource('dynamodb')
             tabla_estudiantes=dynamodb.Table('tabla_estudiantes')
             tabla_estudiantes.put_item(
