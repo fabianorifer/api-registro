@@ -45,6 +45,8 @@ def generate_estudiantes(table):
             },
             "email": email,
         }
+
+
         estudiantes.append(item)
         table.put_item(Item=item)
     return estudiantes
