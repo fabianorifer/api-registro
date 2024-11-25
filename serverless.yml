@@ -24,6 +24,26 @@ functions:
           method: post
           cors: true
           integration: lambda
+  search:
+    handler: SearchEstudiante.lambda_handler
+    events:
+      - http:
+          path: /registro/estudiante/search
+          method: post
+          cors: true
+          integration: lambda
+          request:
+            template:
+              application/json: |
+                {
+                  "method": "$context.httpMethod",
+                  "path": "$context.path",
+                  "headers": {
+                    "Authorization": "$input.params('Authorization')"
+                  },
+                  "body": $input.json('$')
+                }
+
 
 resources:
   Resources:
