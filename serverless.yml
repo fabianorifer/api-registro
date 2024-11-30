@@ -43,6 +43,25 @@ functions:
                   },
                   "body": $input.json('$')
                 }
+  searchbycode:
+    handler: BuscarEstudiantePorCodigo.lambda_handler
+    events:
+      - http:
+          path: /registro/estudiante/searchbycode
+          method: post
+          cors: true
+          integration: lambda
+          request:
+            template:
+              application/json: |
+                {
+                  "method": "$context.httpMethod",
+                  "path": "$context.path",
+                  "headers": {
+                    "Authorization": "$input.params('Authorization')"
+                  },
+                  "body": $input.json('$')
+                }
 
 
 resources:
