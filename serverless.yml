@@ -5,7 +5,7 @@ provider:
   name: aws
   runtime: python3.12
   iam:
-    role: arn:aws:iam::051476014162:role/LabRole
+    role: arn:aws:iam::547527107767:role/LabRole
 
 functions:
   crear:
@@ -90,3 +90,5 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
