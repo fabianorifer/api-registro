@@ -2,7 +2,7 @@ import boto3
 import random
 import string
 from faker import Faker
-from datetime import date
+from datetime import date, timedelta
 
 fake = Faker()
 
@@ -46,7 +46,6 @@ def generate_estudiantes(table):
             "email": email,
         }
 
-
         estudiantes.append(item)
         table.put_item(Item=item)
     return estudiantes
@@ -57,6 +56,9 @@ def generate_programas(table):
     for _ in range(NUM_ENTRIES):
         tenant_id = random.choice(TENANT_IDS)
         c_programa = f"{random.randint(2023, 2030)}#USA#MIAMI#{random.randint(10000, 99999)}"
+        start_date = fake.date_this_year(after_today=False)
+        end_date = start_date + timedelta(days=random.randint(1, 365))  # Generar una fecha posterior
+
         datos_programa = {
             "name": fake.job(),
             "empresa": fake.company(),
@@ -64,8 +66,8 @@ def generate_programas(table):
             "direccion_alojamiento": fake.address(),
             "capacity": random.randint(1, 20),
             "monto": random.randint(200, 500),
-            "start_date": convert_date_to_string(fake.date_this_year()),
-            "end_date": convert_date_to_string(fake.date_this_year()),
+            "start_date": convert_date_to_string(start_date),
+            "end_date": convert_date_to_string(end_date),
         }
         item = {
             "tenant_id": tenant_id,
@@ -80,7 +82,7 @@ def generate_programas(table):
 def generate_inscripciones(table, estudiantes, programas):
     for _ in range(NUM_ENTRIES):
         estudiante = random.choice(estudiantes)
-        programa = random.choice(programas)
+        programa = random.choice([p for p in programas if p["tenant_id"] == estudiante["tenant_id"]])  # Asegurar mismo tenant_id
 
         item = {
             "tenant_id#c_estudiante": f"{estudiante['tenant_id']}#{estudiante['c_estudiante']}",
@@ -106,7 +108,7 @@ def generate_descuentos(table, estudiantes):
             "tenant_id#c_estudiante": f"{tenant_id}#{c_estudiante}",
             "c_descuento": c_descuento,
             "datos_descuento": {
-                "descuento": descuento_value,  # Aseguramos que el valor coincida con c_descuento
+                "descuento": descuento_value,
                 "stock": random.randint(1, 5),
             },
             "tenant_id#c_descuento": f"{tenant_id}#{c_descuento}",
@@ -117,7 +119,7 @@ def generate_descuentos(table, estudiantes):
 def generate_boletas(table, estudiantes, programas):
     for _ in range(NUM_ENTRIES):
         estudiante = random.choice(estudiantes)
-        programa = random.choice(programas)
+        programa = random.choice([p for p in programas if p["tenant_id"] == estudiante["tenant_id"]])  # Asegurar mismo tenant_id
 
         item = {
             "tenant_id": estudiante["tenant_id"],
@@ -133,24 +135,25 @@ def generate_boletas(table, estudiantes, programas):
 
 
 def generate_encuestas(table, estudiantes, programas):
+    tipos_encuesta = ["experiencia", "recomendaciones", "satisfaccion"]
     for _ in range(NUM_ENTRIES):
         estudiante = random.choice(estudiantes)
-        programa = random.choice(programas)
+        programa = random.choice([p for p in programas if p["tenant_id"] == estudiante["tenant_id"]])  # Asegurar mismo tenant_id
+        tipo = random.choice(tipos_encuesta)  # Seleccionar tipo aleatorio
 
         item = {
             "tenant_id#c_programa": f"{programa['tenant_id']}#{programa['c_programa']}",
-            "tipo#c_estudiante": f"experiencia#{estudiante['c_estudiante']}",
+            "tipo#c_estudiante": f"{tipo}#{estudiante['c_estudiante']}",
             "c_programa#c_estudiante": f"{programa['c_programa']}#{estudiante['c_estudiante']}",
             "descripcion": fake.text(max_nb_chars=300),
             "tenant_id#c_estudiante": f"{estudiante['tenant_id']}#{estudiante['c_estudiante']}",
-            "tenant_id#tipo": f"{programa['tenant_id']}#experiencia",
-            "tipo#c_programa": f"experiencia#{programa['c_programa']}",
+            "tenant_id#tipo": f"{programa['tenant_id']}#{tipo}",
+            "tipo#c_programa": f"{tipo}#{programa['c_programa']}",
         }
         table.put_item(Item=item)
 
 
 def main():
-    # Crear 11,000 registros para cada tabla
     estudiantes_table = dynamodb.Table("tabla_estudiantes")
     programas_table = dynamodb.Table("tabla_programas")
     inscripciones_table = dynamodb.Table("tabla_inscripciones")
